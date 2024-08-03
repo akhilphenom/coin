@@ -3,6 +3,7 @@ import { TrendingDownIcon, TrendingUpIcon } from '../icons/icons';
 import './table.css'
 import { useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
+import { format } from 'date-fns';
 
 const StockTable = () => {
   const { coinData } = useSelector((state: any) => state.coin);
@@ -26,17 +27,19 @@ const StockTable = () => {
           <TableBody>
             {
               rows.length ?
-                rows?.map((row, index) => (
+                rows.map((row, index) => (
                   <TableRow hover role="checkbox" tabIndex={-1} key={`${index}`}>
-                    <TableCell>{row.time}</TableCell>
+                    <TableCell>
+                      {format(row.time, 'MM/dd/yyyy hh:mm:ss a')}
+                    </TableCell>
                     <TableCell>{row.price}</TableCell>
                     <TableCell>
                       <div className='stock-value'>
-                        {row.change>0 ? row.change: null}
+                        {row.change!=0 ? row.change: null}
                         {
                           row.change>0 ? 
                           <TrendingUpIcon/> : 
-                          !row.change? null :
+                          row.change==0 ? null :
                           <TrendingDownIcon/>
                         }
                       </div>
