@@ -1,24 +1,38 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
 import './App.css';
+import { useDispatch, useSelector } from 'react-redux';
+import HeaderBar from './components/header/header';
+import StockTable from './components/table/table';
+import BodyContainer from './components/body-container/body-container';
+import { changeCoin, setCoinData, setCoins } from './redux/slice'
+import { coinsDataList, coinsList } from './dump';
+import { useAxios } from './hooks/axios.hook';
 
 function App() {
+  const { selectedCoin, coins, coinsData } = useSelector((state: any) => state.coin);
+  const { fetchData: fetchCoinHistory, loading: coinHistoryLoading, response: coinHistory } = useAxios();
+  const dispatch = useDispatch();
+
+  const getCoinData = async () => {
+    await fetchCoinHistory({
+      url: 'coin-history',
+      method: 'GET',
+      params: { _id: selectedCoin?._id }
+    }).then(() => {
+      dispatch(setCoinData(coinsDataList))
+    })
+  }
+
+  useEffect(() => {
+    selectedCoin && getCoinData()
+  }, [selectedCoin])
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <HeaderBar/>
+      <BodyContainer>
+        <StockTable rows={coinsDataList}/>
+      </BodyContainer>
     </div>
   );
 }
