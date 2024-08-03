@@ -13,25 +13,42 @@ const BitcoinDropDown = () => {
   
   const handleChange = (event: { target: { value: any; }; }) => {
     const { target: { value } } = event;
-    dispatch(changeCoin(value))
-    getCoinData();
+    const coin = coins.find(({_id}) => _id == value);
+    dispatch(changeCoin(coin))
+    dispatch(setCoinData([]))
   };
 
   const getCoinData = async () => {
     await fetchCoinHistory({
       url: 'coin-history',
       method: 'GET',
-      params: { _id: selectedCoin?._id }
+      params: { coin: selectedCoin?._id }
     })
   }
 
   const getCoins = async () => {
     await fetchCoinList({
-      url: 'coin-history',
+      url: 'coin',
       method: 'GET',
-      params: { _id: selectedCoin?._id }
     })
   }
+
+  useEffect(() => {
+    if(coinHistory?.data?.length) {
+      dispatch(setCoinData(coinHistory.data))
+    }
+  }, [coinHistory])
+
+  useEffect(() => {
+    if(coinListData?.data.length) {
+      dispatch(setCoins(coinListData.data))
+      dispatch(changeCoin(coinListData.data[0]))
+    }
+  }, [coinListData])
+
+  useEffect(() => {
+    selectedCoin && getCoinData()
+  }, [selectedCoin])
 
   useEffect(() => {
     getCoins();
@@ -47,7 +64,7 @@ const BitcoinDropDown = () => {
       <Select
         labelId="label-id"
         id="bitcoin"
-        value={selectedCoin}
+        value={selectedCoin._id}
         label={'Bitcoin'}
         onChange={handleChange}
         sx={{
@@ -61,7 +78,7 @@ const BitcoinDropDown = () => {
         }}
       >
         {coins.map((coin: { _id: string, name: string}) => (
-          <MenuItem id={coin._id} value={coin._id}>{coin.name}</MenuItem>
+          <MenuItem key={coin._id} value={coin._id}>{coin.name}</MenuItem>
         ))}
       </Select>
     </FormControl>

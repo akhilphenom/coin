@@ -1,6 +1,17 @@
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import { TrendingDownIcon, TrendingUpIcon } from '../icons/icons';
+import './table.css'
+import { useSelector } from 'react-redux';
+import { useEffect, useState } from 'react';
 
-const StockTable = ({ rows }: {rows: any[]}) => {
+const StockTable = () => {
+  const { coinData } = useSelector((state: any) => state.coin);
+  const [rows, setRows] = useState([])
+  
+  useEffect(() => {
+    setRows(coinData)
+  }, [coinData])
+
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
       <TableContainer sx={{ maxHeight: 440 }}>
@@ -13,13 +24,30 @@ const StockTable = ({ rows }: {rows: any[]}) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row, index) => (
-              <TableRow hover role="checkbox" tabIndex={-1} key={`${index}`}>
-                <TableCell>{row.time}</TableCell>
-                <TableCell>{row.price}</TableCell>
-                <TableCell>{row.change}</TableCell>
-              </TableRow>
-            ))}
+            {
+              rows.length ?
+                rows?.map((row, index) => (
+                  <TableRow hover role="checkbox" tabIndex={-1} key={`${index}`}>
+                    <TableCell>{row.time}</TableCell>
+                    <TableCell>{row.price}</TableCell>
+                    <TableCell>
+                      <div className='stock-value'>
+                        {row.change>0 ? row.change: null}
+                        {
+                          row.change>0 ? 
+                          <TrendingUpIcon/> : 
+                          !row.change? null :
+                          <TrendingDownIcon/>
+                        }
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              : 
+                <TableRow>
+                  <TableCell colSpan={3} align={'center'}> No Data</TableCell>
+                </TableRow>
+              }
           </TableBody>
         </Table>
       </TableContainer>
